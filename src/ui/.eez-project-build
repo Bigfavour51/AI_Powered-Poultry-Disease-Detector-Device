@@ -1,0 +1,24 @@
+{
+  "files": [
+    "actions.h",
+    "eez-flow.cpp",
+    "eez-flow.h",
+    "fonts.h",
+    "images.c",
+    "images.h",
+    "screens.c",
+    "screens.h",
+    "structs.h",
+    "styles.c",
+    "styles.h",
+    "ui.c",
+    "ui.h",
+    "ui_image_charging_icon.c",
+    "ui_image_coccidiosis_label.c",
+    "ui_image_frame1.c",
+    "ui_image_healthy_label.c",
+    "ui_image_newcastle_label.c",
+    "ui_image_salmonella.c",
+    "vars.h"
+  ]
+}
