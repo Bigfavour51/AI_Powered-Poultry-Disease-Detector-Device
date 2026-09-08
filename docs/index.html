@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07110d">
+  <meta name="description" content="Poultry Disease Detector — an embedded intelligent poultry-health monitoring platform combining STM32 sensing, ESP32 HMI, Raspberry Pi edge AI and cloud connectivity.">
+  <title>Poultry Disease Detector | Intelligent Poultry Health</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#top"><span class="brand-mark">🐔</span><span>Poultry Disease Detector</span></a>
+    <nav>
+      <a href="#system">System</a><a href="#hardware">Hardware</a><a href="#ai">AI</a><a href="#telemetry">Telemetry</a><a href="#roadmap">Roadmap</a>
+    </nav>
+    <a class="nav-cta" href="https://github.com/Bigfavour51/AI_Powered-Poultry-Disease-Detector-Device" target="_blank" rel="noreferrer">GitHub ↗</a>
+  </header>
+
+  <main id="top">
+    <section class="hero section-shell">
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span class="pulse"></span> ACTIVE ENGINEERING PROJECT · 2026</div>
+        <h1>Intelligence at the <span>edge</span> of the poultry house.</h1>
+        <p class="hero-sub">A modular embedded platform for environmental monitoring, AI-assisted poultry disease detection and real-time operator feedback.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#system">Explore the system <span>↓</span></a>
+          <a class="button ghost" href="https://github.com/Bigfavour51/AI_Powered-Poultry-Disease-Detector-Device" target="_blank" rel="noreferrer">View source ↗</a>
+        </div>
+        <div class="hero-stats">
+          <div><strong>STM32</strong><span>real-time control</span></div>
+          <div><strong>ESP32 CYD</strong><span>operator HMI</span></div>
+          <div><strong>Raspberry Pi 5</strong><span>edge AI + cloud</span></div>
+        </div>
+      </div>
+      <div class="hero-visual reveal delay-1">
+        <div class="halo"></div>
+        <div class="device-card">
+          <div class="device-top"><span>CYD HMI</span><span class="status-dot">ONLINE</span></div>
+          <div class="device-screen">
+            <div class="screen-title">POULTRY HEALTH</div>
+            <div class="metrics">
+              <div><small>TEMP</small><b id="heroTemp">29.4°</b></div>
+              <div><small>HUMIDITY</small><b id="heroHum">68.2%</b></div>
+              <div><small>PRESSURE</small><b id="heroPress">1012.7</b></div>
+              <div><small>AMMONIA</small><b id="heroGas">15.4</b></div>
+            </div>
+            <div class="diagnosis">
+              <div class="diagnosis-label">AI DIAGNOSIS</div>
+              <div class="diagnosis-result"><span class="diagnosis-icon">🐔</span><strong id="heroDisease">Healthy</strong><em id="heroConfidence">94%</em></div>
+            </div>
+            <div class="screen-footer"><span>STM32 / UART 9600</span><span id="heroBattery">82% 🔋</span></div>
+          </div>
+          <div class="device-shadow"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ticker"><div class="ticker-inner"><span>EMBEDDED AI</span><i>✦</i><span>REAL-TIME TELEMETRY</span><i>✦</i><span>EDGE PROCESSING</span><i>✦</i><span>MODULAR ARCHITECTURE</span><i>✦</i><span>ENGINEERED FOR FIELD USE</span><i>✦</i></div></section>
+
+    <section id="system" class="section-shell section-pad">
+      <div class="section-heading reveal"><span class="kicker">01 / SYSTEM</span><h2>One device. Multiple engineering layers.</h2><p>The public-facing view of the system follows the same separation of concerns used in the firmware: sensing, communication, data, inference and presentation stay modular.</p></div>
+      <div class="architecture reveal">
+        <div class="arch-node node-sensor"><span class="node-icon">🌡️</span><h3>STM32</h3><p>Sensor acquisition, battery state and device control.</p><small>REAL-TIME CONTROLLER</small></div>
+        <div class="arch-link"><span>UART · 9600</span></div>
+        <div class="arch-node node-hmi"><span class="node-icon">🖥️</span><h3>ESP32 CYD</h3><p>LVGL 9.3 + EEZ Studio human-machine interface.</p><small>FIELD HMI</small></div>
+        <div class="arch-side"><span class="side-line"></span><div class="arch-node node-ai"><span class="node-icon">🧠</span><h3>Raspberry Pi 5</h3><p>Camera processing, AI inference and cloud connectivity.</p><small>EDGE AI NODE</small></div></div>
+      </div>
+    </section>
+
+    <section id="hardware" class="section-shell section-pad alt">
+      <div class="section-heading reveal"><span class="kicker">02 / HARDWARE</span><h2>Hardware is part of the story.</h2><p>Photographs can be dropped into the gallery as the prototype evolves from bench setup to finished field device.</p></div>
+      <div class="hardware-grid">
+        <article class="hardware-card featured reveal"><div class="photo-placeholder"><span>🖥️</span><small>ADD PHOTO</small><strong>CYD HMI</strong></div><div class="card-copy"><span>01 · HMI</span><h3>ESP32 + 2.8″ TFT</h3><p>Interactive display for live environmental values, battery status and AI results.</p><div class="chips"><b>LVGL 9.3</b><b>EEZ Studio</b><b>XPT2046</b></div></div></article>
+        <article class="hardware-card reveal delay-1"><div class="photo-placeholder"><span>🧠</span><small>ADD PHOTO</small><strong>RPI 5</strong></div><div class="card-copy"><span>02 · COMPUTE</span><h3>Raspberry Pi 5</h3><p>Camera pipeline, edge inference and cloud-side orchestration.</p><div class="chips"><b>AI</b><b>CAMERA</b><b>LTE</b></div></div></article>
+        <article class="hardware-card reveal delay-2"><div class="photo-placeholder"><span>⚙️</span><small>ADD PHOTO</small><strong>STM32</strong></div><div class="card-copy"><span>03 · CONTROL</span><h3>Sensor Controller</h3><p>DHT22, BME280, MQ-135 and power telemetry under deterministic control.</p><div class="chips"><b>DHT22</b><b>BME280</b><b>MQ-135</b></div></div></article>
+        <article class="hardware-card wide reveal"><div class="photo-placeholder wide-photo"><span>📦</span><small>ADD FINAL SYSTEM PHOTO</small><strong>COMPLETE SYSTEM</strong></div><div class="card-copy"><span>04 · INTEGRATION</span><h3>From modules to a product</h3><p>This panel is intentionally ready for the final integrated device, enclosure, PCB and field deployment photography.</p><div class="chips"><b>PROTOYPE</b><b>ENCLOSURE</b><b>FIELD TEST</b></div></div></article>
+      </div>
+    </section>
+
+    <section id="ai" class="section-shell section-pad">
+      <div class="section-heading reveal"><span class="kicker">03 / AI PIPELINE</span><h2>From image to decision.</h2><p>The AI stack is intentionally offloaded from the HMI so the screen stays responsive while the Pi handles the heavier vision workload.</p></div>
+      <div class="ai-flow reveal">
+        <div class="flow-card"><span>01</span><div class="flow-icon">📷</div><h3>Capture</h3><p>Camera observes poultry droppings for analysis.</p></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-card"><span>02</span><div class="flow-icon">🧠</div><h3>Infer</h3><p>Raspberry Pi processes the image at the edge.</p></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-card"><span>03</span><div class="flow-icon">🎯</div><h3>Classify</h3><p>Returns disease class and confidence score.</p></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-card"><span>04</span><div class="flow-icon">🖥️</div><h3>Present</h3><p>CYD renders the result for the operator.</p></div>
+      </div>
+      <div class="disease-grid reveal">
+        <div class="disease healthy"><span>01</span><strong>Healthy</strong><small>baseline condition</small></div>
+        <div class="disease"><span>02</span><strong>Coccidiosis</strong><small>classification class</small></div>
+        <div class="disease"><span>03</span><strong>Newcastle Disease</strong><small>classification class</small></div>
+        <div class="disease"><span>04</span><strong>Salmonella</strong><small>classification class</small></div>
+      </div>
+    </section>
+
+    <section id="telemetry" class="section-shell section-pad alt">
+      <div class="section-heading reveal"><span class="kicker">04 / LIVE DEMO</span><h2>A dashboard that feels like hardware.</h2><p>Interactive values below are simulated for the showcase. The physical device receives telemetry from the STM32 over UART.</p></div>
+      <div class="telemetry-shell reveal">
+        <div class="telemetry-head"><div><span class="live-led"></span> SIMULATED TELEMETRY</div><div class="mono">PACKET · #29.4,75,68.2,1012.7,15.4,1</div></div>
+        <div class="telemetry-grid">
+          <article class="telemetry-card"><small>Temperature</small><strong id="tTemp">29.4 °C</strong><span>environment</span></article>
+          <article class="telemetry-card"><small>Humidity</small><strong id="tHum">68.2 %</strong><span>environment</span></article>
+          <article class="telemetry-card"><small>Pressure</small><strong id="tPress">1012.7 hPa</strong><span>BME280</span></article>
+          <article class="telemetry-card"><small>Ammonia</small><strong id="tGas">15.4</strong><span>MQ-135</span></article>
+          <article class="telemetry-card battery"><small>Battery</small><strong id="tBattery">82 %</strong><span id="chargeText">charging</span></article>
+          <article class="telemetry-card diagnosis-card"><small>AI result</small><strong id="tDisease">Healthy</strong><span>confidence <b id="tConfidence">94%</b></span></article>
+        </div>
+        <div class="telemetry-footer"><span>ESP32 Serial2</span><span>9600 · 8N1</span><span>TX GPIO 27</span><span>RX GPIO 22</span></div>
+      </div>
+    </section>
+
+    <section class="section-shell section-pad">
+      <div class="section-heading reveal"><span class="kicker">05 / ENGINEERING</span><h2>Built like an engineering system.</h2></div>
+      <div class="engineering-grid">
+        <div class="eng-panel reveal"><span class="eng-number">01</span><h3>Communication</h3><p>UART separates the STM32 controller from the ESP32 presentation layer.</p><code>#TEMP,BATTERY,HUMIDITY,PRESSURE,MQ135,CHARGING</code></div>
+        <div class="eng-panel reveal delay-1"><span class="eng-number">02</span><h3>UI architecture</h3><p>EEZ Studio defines the visual system while custom firmware manages data-to-screen updates.</p><code>telemetry → uiManagerUpdate()</code></div>
+        <div class="eng-panel reveal delay-2"><span class="eng-number">03</span><h3>Production path</h3><p>The current ASCII protocol is intentionally easy to debug; CRC-framed transport is planned for hardening.</p><code>SOF · TYPE · LEN · PAYLOAD · CRC · EOF</code></div>
+      </div>
+    </section>
+
+    <section id="roadmap" class="section-shell section-pad alt">
+      <div class="section-heading reveal"><span class="kicker">06 / ROADMAP</span><h2>Prototype → product.</h2></div>
+      <div class="roadmap reveal">
+        <div class="road-step done"><span>01</span><div><small>FOUNDATION</small><h3>HMI & firmware base</h3><p>ESP32 CYD, LVGL 9.3, EEZ Studio and project structure.</p></div><b>DONE</b></div>
+        <div class="road-step active"><span>02</span><div><small>INTEGRATION</small><h3>STM32 telemetry</h3><p>Live UART reception, parsing and screen updates.</p></div><b>NOW</b></div>
+        <div class="road-step"><span>03</span><div><small>AI</small><h3>Inference integration</h3><p>Disease result and confidence delivered to the HMI.</p></div><b>NEXT</b></div>
+        <div class="road-step"><span>04</span><div><small>PRODUCT</small><h3>Enclosure & field validation</h3><p>Integrated hardware, ruggedization, testing and deployment.</p></div><b>PLANNED</b></div>
+      </div>
+    </section>
+
+    <section class="section-shell section-pad final-cta">
+      <div class="cta-card reveal"><div><span class="kicker">THE SOURCE</span><h2>Follow the build, not just the result.</h2><p>Firmware, UI assets and development history live in the public repository.</p></div><div class="cta-actions"><a class="button primary" href="https://github.com/Bigfavour51/AI_Powered-Poultry-Disease-Detector-Device" target="_blank" rel="noreferrer">Open GitHub ↗</a><a class="button ghost" href="#top">Back to top ↑</a></div></div>
+    </section>
+  </main>
+
+  <footer class="footer"><div><strong>🐔 Poultry Disease Detector</strong><span>Intelligent poultry health monitoring at the edge.</span></div><div class="footer-links"><a href="https://github.com/Bigfavour51/AI_Powered-Poultry-Disease-Detector-Device" target="_blank" rel="noreferrer">Repository</a><a href="#hardware">Hardware</a><a href="#ai">AI</a><a href="#telemetry">Telemetry</a></div><div class="footer-note">© 2026 · Engineering showcase</div></footer>
+  <script src="./script.js"></script>
+</body>
+</html>
