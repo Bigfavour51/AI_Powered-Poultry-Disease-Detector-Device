@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+captures/
+logs/
+tests/out/
+models/*.tflite
+pi_eval_results/
