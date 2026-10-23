@@ -21,7 +21,12 @@
 #define LCD_BACKLIGHT_PIN 21
 static const uint16_t screenWidth  = 320;
 static const uint16_t screenHeight = 240;
-#define LED_PIN 27
+
+/* ================= DATA SOURCE ================= */
+// 1 = random values from data_simulator, 0 = frames from the S3 main board (uart_driver)
+#define USE_SIMULATOR 0
+// No frame for this long: the S3 link is lost, clear the values to "--"
+#define LINK_TIMEOUT_MS 10000
 /* ================= LVGL BUFFER ================= */
 static lv_color_t buf[screenWidth * 20];
 
@@ -29,6 +34,7 @@ static lv_color_t buf[screenWidth * 20];
 TFT_eSPI tft;
 XPT2046_Touchscreen touch(XPT2046_CS, XPT2046_IRQ);
 TelemetryData telemetry;
+static uint32_t lastFrameMs = 0;
 
 
 
@@ -94,8 +100,6 @@ void setup()
     /* ---------- BACKLIGHT ---------- */
     pinMode(LCD_BACKLIGHT_PIN, OUTPUT);
     digitalWrite(LCD_BACKLIGHT_PIN, HIGH);
-    pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, LOW);
 
     /* ---------- DISPLAY ---------- */
     tft.init();
@@ -132,6 +136,7 @@ void setup()
     uart_slave_setup();
     uiManagerInit();
     simulatorInit();
+    uiManagerUpdate(telemetry);     // "--" until the first frame arrives
 }
 
 
@@ -143,9 +148,20 @@ void loop()
 
     // Implementation to handle main screen displays
 
+#if USE_SIMULATOR
     if (simulatorUpdate(telemetry)) {
         uiManagerUpdate(telemetry);
     }
-   
+#else
+    if (uart_slave_read(telemetry)) {
+        lastFrameMs = millis();
+        uiManagerUpdate(telemetry);
+    } else if (lastFrameMs != 0 && millis() - lastFrameMs > LINK_TIMEOUT_MS) {
+        Serial.println("S3 link lost");
+        lastFrameMs = 0;
+        telemetry = TelemetryData();
+        uiManagerUpdate(telemetry);
+    }
+#endif
 
 }
