@@ -1,7 +1,7 @@
 // cyd_link.h - main board (ESP32-S3) -> CYD display UART link (Arduino, PlatformIO)
 //
-// Two copies must stay identical: NL_Poultry_Diesease_CCT/lib/CydLink/cyd_link.h (main board,
-// sends) and NL_Poultry_Disease_CYD/lib/CydLink/cyd_link.h (CYD, receives).
+// Two copies must stay identical: main-board/lib/CydLink/cyd_link.h (main board, sends) and
+// cyd-display/lib/CydLink/cyd_link.h (CYD, receives).
 //
 // Wiring (both sides are 3.3 V logic; GND must be shared):
 //   S3 GPIO41 (UART2 TX)  ->  CYD GPIO35 (RX; input-only pin, fine for receiving)

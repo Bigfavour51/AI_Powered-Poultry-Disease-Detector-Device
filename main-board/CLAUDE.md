@@ -4,13 +4,14 @@ Final-year project. The main board talks to a Raspberry Pi that photographs chic
 droppings and classifies them (Coccidiosis, Healthy, Newcastle, Salmonella). The main board
 requests captures, receives results, reads the shed sensors (DHT temperature/humidity, MQ135
 gas) and shows everything on a CYD display. The 4G module is out of scope.
-The Pi side lives in `~/Documents/pdd_project`, the CYD firmware in
-`../NL_Poultry_Disease_CYD` (ESP32-2432S028R, LVGL 9 + EEZ Studio UI, `pio` env `esp32dev`).
+This repo holds the whole system: `main-board/` (this firmware), `../raspberry-pi/` (camera + AI,
+its own CLAUDE.md) and `../cyd-display/` (ESP32-2432S028R, LVGL 9 + EEZ Studio UI, `pio` env
+`esp32dev`). `../docs/` is the GitHub Pages showcase (deployed by `.github/workflows/pages.yml`).
 
 Built one feature at a time. Done: Pi link (incl. photo), CYD display link, DHT11, MQ135 (calibrated).
 Current step: **phone dashboard** over the S3's WiFi access point.
-The board moved from a Blue Pill to an ESP32-S3; the old STM32 version is kept in
-`../NL_Poultry_Diesease_CCT_bluepill/`.
+The board moved from a Blue Pill to an ESP32-S3 (the STM32 version is in the git history before
+this repo was combined).
 
 ## Board and tools
 - **ESP32-S3-DevKitC-1 N16R8** (ESP32-S3 QFN56 rev v0.2, 16 MB quad flash, 8 MB octal PSRAM),
@@ -47,10 +48,10 @@ does not start it.
   Pi → board: `BOOT`, `HB` (every 5 s), `BUSY`, `RES`, `ERR`, `PONG`. Board → Pi: `CAP`, `PING`.
 - On ESP32 the pins are passed at start-up: `pi.begin(PIN_PI_RX, PIN_PI_TX)`. The STM32 build
   (`begin()` with no pins) is kept so the Blue Pill test sketch still compiles.
-- It is a **copy of `~/Documents/pdd_project/stm32/pi_link.h`**; the two must stay identical.
+- It is a **copy of `../raspberry-pi/stm32/pi_link.h`**; the two must stay identical.
   Protocol changes start on the Pi side (`pdd_inference.py`); update both headers together.
-- Parser tests without the Pi: `pdd_project/stm32/test_pi_link` (Blue Pill) +
-  `pdd_project/tests/pc_pi_simulator.py`.
+- Parser tests without the Pi: `../raspberry-pi/stm32/test_pi_link` (Blue Pill) +
+  `../raspberry-pi/tests/pc_pi_simulator.py`.
 
 ## CYD display link
 - `lib/CydLink/cyd_link.h` (format documented at its top): a TEL frame from the S3 every 2 s and
@@ -58,7 +59,7 @@ does not start it.
   result photo. `-` = no value (shown as `--`). Same checksum as the Pi link.
 - The Pi sends the photo (112x84 baseline JPEG) after each RES as IMG/IMD; the S3 forwards it;
   the CYD decodes it with LVGL's bundled TJpgDec into the camera panel.
-- Identical copy in `../NL_Poultry_Disease_CYD/lib/CydLink/cyd_link.h`; change both together.
+- Identical copy in `../cyd-display/lib/CydLink/cyd_link.h`; change both together.
   The CYD converts it to its UI struct in `src/uart_driver.cpp`; `USE_SIMULATOR` in its
   `main.cpp` switches back to random test data.
 

@@ -42,7 +42,7 @@ Camera: native fast mode 2304 × 1296; use `rpicam-still -n` (no preview, there 
 - `tests/` – `test_button.py`, `test_camera.py`, `test_uart_loopback.py` (Pi) and
   `pc_stm32_simulator.py` (runs on the PC with the FT232R).
 - `stm32/pi_link.h` – main-board (Arduino/PlatformIO, ESP32 and STM32) parser for the same protocol. An identical copy is
-  used by the main-board firmware at `~/Documents/PlatformIO/Projects/NL_Poultry_Diesease_CCT/lib/PiLink/`;
+  used by the main-board firmware at `../main-board/lib/PiLink/`;
   keep the two in sync.
 - `stm32/test_pi_link/` + `tests/pc_pi_simulator.py` – Blue Pill test of `pi_link.h`, with the PC
   playing the Pi through the FT232R.

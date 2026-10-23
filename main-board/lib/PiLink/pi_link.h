@@ -1,8 +1,8 @@
 // pi_link.h - main-board side of the Raspberry Pi UART link (Arduino, PlatformIO).
 // Builds for the ESP32-S3 main board and for the Blue Pill (STM32duino) test sketch.
 //
-// Two copies must stay identical: pdd_project/stm32/pi_link.h (next to the Pi code) and
-// NL_Poultry_Diesease_CCT/lib/PiLink/pi_link.h (the main-board firmware).
+// Two copies must stay identical: raspberry-pi/stm32/pi_link.h (next to the Pi code) and
+// main-board/lib/PiLink/pi_link.h (the main-board firmware).
 //
 // Wiring (both sides are 3.3 V logic, no level shifter needed):
 //   ESP32-S3 GPIO17 (UART1 TX) / Blue Pill PA2 (USART2 TX)  ->  Pi GPIO15 RXD (pin 10)

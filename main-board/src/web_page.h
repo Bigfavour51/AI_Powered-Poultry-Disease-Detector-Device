@@ -221,6 +221,8 @@ const ADVICE = {
   SALMONELLA:"Possible salmonella. Separate affected birds, tighten hygiene and confirm with a lab test."
 };
 let state = null, textSeq = -1, photoSeq = -1, histKey = "", fails = 0;
+// Photo URL of a detection (the GitHub Pages demo supplies its own, see tools/build_demo.py)
+const photoUrl = window.photoUrl || ((seq, at) => "/photo?seq=" + seq + "&at=" + at);
 
 function ago(s){ if(s<10) return "just now"; if(s<60) return s+" s ago"; if(s<3600) return Math.floor(s/60)+" min ago";
   return Math.floor(s/3600)+" h "+Math.floor(s%3600/60)+" min ago"; }
@@ -268,7 +270,7 @@ function renderAI(s){
     photoSeq = d.seq;
     const img = $("photo-img");
     img.onload = () => { img.hidden = false; $("photo-empty").hidden = true; $("photo-stamp").hidden = false; };
-    img.src = "/photo?seq="+d.seq+"&at="+d.at;
+    img.src = photoUrl(d.seq, d.at);
   }
   if (d.seq === textSeq) return;
   textSeq = d.seq;
@@ -298,7 +300,7 @@ function renderHistory(s){
   if (!s.det.length) { $("hist").innerHTML = '<p class="none">No detections yet.</p>'; return; }
   $("hist").innerHTML = s.det.map(d=>{
     const k = kind(d), col = k==="good" ? "var(--good)" : k==="warn" ? "var(--warning)" : "var(--critical)";
-    return `<div class="h-item"><div class="im">${d.img ? `<img loading="lazy" alt="Photo #${d.seq}" src="/photo?seq=${d.seq}&at=${d.at}">` : "no photo"}</div>
+    return `<div class="h-item"><div class="im">${d.img ? `<img loading="lazy" alt="Photo #${d.seq}" src="${photoUrl(d.seq, d.at)}">` : "no photo"}</div>
       <div class="tx"><b><i style="background:${col}"></i>${NAMES[d.label]||d.label}</b>
       <small>${d.conf}%${d.low?" · low":""} · #${d.seq} · <span data-at="${d.at}">${ago(s.up-d.at)}</span></small></div></div>`;
   }).join("");
