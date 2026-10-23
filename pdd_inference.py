@@ -34,6 +34,8 @@ UART protocol (115200 8-N-1, ASCII, one frame per line, NMEA-style checksum)
          agree is how many of the 3 models picked the same class (1-3)
     ERR,<seq>,<code>                                           code = CAM, MODEL or IMG
     PONG
+    IMG,<seq>,<w>,<h>,<bytes>                                  photo of result <seq> follows (baseline JPEG)
+    IMD,<seq>,<offset>,<base64>                                one IMG_CHUNK-byte piece of it, in order
 
   STM32 -> Pi
     CAP     request a capture (e.g. remote command received over 4G)
@@ -41,7 +43,9 @@ UART protocol (115200 8-N-1, ASCII, one frame per line, NMEA-style checksum)
 """
 
 import argparse
+import base64
 import csv
+import io
 import logging
 import queue
 import signal
@@ -90,7 +94,11 @@ BUTTON_GPIO = 17             # BCM 17 = physical pin 11; button to GND (pin 9)
 SERIAL_PORT = "/dev/serial0" # GPIO14 TXD (pin 8) / GPIO15 RXD (pin 10)
 BAUD = 115200
 HEARTBEAT_S = 5.0
+CAPTURE_TIMEOUT_S = 15.0     # a camera that has not delivered a photo by then is treated as failed
 LOW_CONF_THRESHOLD = 60      # % - below this the result is flagged LOW
+THUMB_SIZE = (112, 84)       # photo sent after each result, for the CYD display's camera panel
+THUMB_QUALITY = 70           # JPEG quality; ~3-4 KB, about 0.4 s on the UART
+IMG_CHUNK = 48               # bytes per IMD frame (64 base64 characters, line < 112 chars)
 NUM_THREADS = 4              # Pi 4 has four Cortex-A72 cores
 
 log = logging.getLogger("pdd")
@@ -157,6 +165,9 @@ class SerialLink:
             buf += chunk
             while b"\n" in buf:
                 raw, buf = buf.split(b"\n", 1)
+                # A glitch on the line arrives as a stray 0x00 (framing error); drop it so the
+                # frame around it still passes the checksum
+                raw = raw.replace(b"\x00", b"")
                 fields = parse_frame(raw.decode("ascii", "ignore"))
                 if fields is None:
                     log.debug("RX ignored: %r", raw)
@@ -311,6 +322,26 @@ class Camera:
                 log.warning("Autofocus failed, capturing anyway: %s", exc)
         return self.cam.capture_image("main")  # PIL image, RGB
 
+    def capture_with_timeout(self, timeout=CAPTURE_TIMEOUT_S) -> Image.Image:
+        """capture() in a worker thread: a hung camera (loose ribbon) raises TimeoutError
+        instead of blocking the service, so heartbeats and the UART keep going."""
+        out = {}
+
+        def work():
+            try:
+                out["img"] = self.capture()
+            except Exception as exc:
+                out["exc"] = exc
+
+        t = threading.Thread(target=work, daemon=True)
+        t.start()
+        t.join(timeout)
+        if t.is_alive():
+            raise TimeoutError(f"no photo from the camera within {timeout:.0f} s")
+        if "exc" in out:
+            raise out["exc"]
+        return out["img"]
+
     def close(self):
         self.cam.stop()
         self.cam.close()
@@ -356,6 +387,26 @@ def send_result(link, seq, res, threshold=LOW_CONF_THRESHOLD):
     link.send("RES", seq, res["label"], conf, *pcts, flag, res["agree"], int(round(res["total_ms"])))
 
 
+def make_thumbnail(img: Image.Image, crop_fraction=CROP_FRACTION, size=THUMB_SIZE) -> bytes:
+    """Small baseline JPEG of what the models looked at: the same centre crop height,
+    widened to the thumbnail's aspect ratio."""
+    img = img.convert("RGB")
+    w, h = img.size
+    ch = int(h * crop_fraction) if crop_fraction else h
+    cw = min(w, ch * size[0] // size[1])
+    left, top = (w - cw) // 2, (h - ch) // 2
+    thumb = img.crop((left, top, left + cw, top + ch)).resize(size, Image.BILINEAR)
+    buf = io.BytesIO()
+    thumb.save(buf, "JPEG", quality=THUMB_QUALITY, progressive=False)
+    return buf.getvalue()
+
+
+def send_image(link, seq, jpeg: bytes, size=THUMB_SIZE):
+    link.send("IMG", seq, size[0], size[1], len(jpeg))
+    for off in range(0, len(jpeg), IMG_CHUNK):
+        link.send("IMD", seq, off, base64.b64encode(jpeg[off:off + IMG_CHUNK]).decode("ascii"))
+
+
 # ---------------------------------------------------------------------------
 # Run modes
 # ---------------------------------------------------------------------------
@@ -380,11 +431,18 @@ def run_service(args):
     except Exception as exc:
         log.error("Camera init failed: %s", exc)
 
+    busy = threading.Event()  # set while a capture is being processed
+
+    def on_press():
+        # One press = one capture/analysis cycle; presses during a cycle are ignored
+        if not busy.is_set():
+            events.put("BTN")
+
     button = None
     try:
         from gpiozero import Button
         button = Button(args.button_gpio, pull_up=True, bounce_time=0.05)
-        button.when_pressed = lambda: events.put("BTN")
+        button.when_pressed = on_press
         log.info("Button on GPIO%d", args.button_gpio)
     except Exception as exc:
         log.warning("Button unavailable (%s); remote CAP still works", exc)
@@ -399,6 +457,11 @@ def run_service(args):
     next_hb = time.monotonic()
 
     while not stop.is_set():
+        if busy.is_set():
+            # Remote CAP requests that came in during the last cycle are dropped too
+            while not events.empty():
+                log.info("Ignored %s request received during a capture", events.get_nowait())
+        busy.clear()
         now = time.monotonic()
         if now >= next_hb:
             link.send("HB", seq, int(cam_ok), int(model_ok), int(now - start))
@@ -407,10 +470,7 @@ def run_service(args):
             source = events.get(timeout=0.2)
         except queue.Empty:
             continue
-
-        # Ignore presses queued up while the previous capture was running
-        while not events.empty():
-            events.get_nowait()
+        busy.set()
 
         seq += 1
         link.send("BUSY", seq, source)
@@ -421,7 +481,13 @@ def run_service(args):
             link.send("ERR", seq, "MODEL")
             continue
         try:
-            img = camera.capture()
+            img = camera.capture_with_timeout()
+        except TimeoutError as exc:
+            # The camera thread is stuck; report the camera as failed until the service restarts
+            log.error("Capture failed: %s (check the camera ribbon, then restart)", exc)
+            cam_ok = False
+            link.send("ERR", seq, "CAM")
+            continue
         except Exception as exc:
             log.error("Capture failed: %s", exc)
             link.send("ERR", seq, "CAM")
@@ -440,12 +506,16 @@ def run_service(args):
             continue
 
         send_result(link, seq, res, args.threshold)
+        try:
+            send_image(link, seq, make_thumbnail(img, args.crop))
+        except Exception as exc:
+            log.warning("Photo not sent: %s", exc)
         append_csv(Path(args.log), result_row(seq, source, img_path.name, res))
         log.info("#%d %s %.1f%% (agree %d/3, %.0f ms)",
                  seq, res["label"], res["confidence"], res["agree"], res["total_ms"])
 
     log.info("Shutting down")
-    if camera:
+    if camera and cam_ok:
         camera.close()
     link.close()
 
@@ -456,8 +526,10 @@ def run_images(args):
     ensemble = Ensemble(Path(args.models))
     ensemble.warm_up()
     for seq, path in enumerate(args.image, start=1):
-        res = ensemble.predict(preprocess(Image.open(path), args.crop))
+        img = Image.open(path)
+        res = ensemble.predict(preprocess(img, args.crop))
         send_result(link, seq, res, args.threshold)
+        send_image(link, seq, make_thumbnail(img, args.crop))
         append_csv(Path(args.log), result_row(seq, "FILE", Path(path).name, res))
         detail = "  ".join(f"{k}={p * 100:.1f}%" for k, p in zip(CLASS_KEYS, res["probs"]))
         print(f"{path}: {res['label']} {res['confidence']:.1f}% (agree {res['agree']}/3)  {detail}")
