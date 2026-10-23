@@ -1,0 +1,60 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Pi: deploy",
+      "type": "shell",
+      "command": "./deploy.sh",
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "Pi: camera test (fetch images)",
+      "type": "shell",
+      "command": "./deploy.sh venv/bin/python tests/test_camera.py && mkdir -p tests/out && scp 'pdd:poultry_pi/tests/out/cam_*' tests/out/ && echo 'Images in tests/out/'",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pi: button test",
+      "type": "shell",
+      "command": "./deploy.sh venv/bin/python tests/test_button.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pi: UART loopback test (jumper pin 8 to 10)",
+      "type": "shell",
+      "command": "./deploy.sh venv/bin/python tests/test_uart_loopback.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pi: benchmark models",
+      "type": "shell",
+      "command": "./deploy.sh venv/bin/python pdd_inference.py --benchmark 20",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pi: run service (verbose, no STM32)",
+      "type": "shell",
+      "command": "./deploy.sh venv/bin/python pdd_inference.py --no-serial -v",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pi: run service (verbose, with UART)",
+      "type": "shell",
+      "command": "./deploy.sh venv/bin/python pdd_inference.py -v",
+      "problemMatcher": []
+    },
+    {
+      "label": "PC: STM32 simulator (FT232R on /dev/ttyUSB0)",
+      "type": "shell",
+      "command": "python tests/pc_stm32_simulator.py --port /dev/ttyUSB0",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pi: fetch captures and logs",
+      "type": "shell",
+      "command": "mkdir -p captures logs && rsync -az pdd:poultry_pi/captures/ captures/ && rsync -az pdd:poultry_pi/logs/ logs/ && echo 'Fetched into captures/ and logs/'",
+      "problemMatcher": []
+    }
+  ]
+}

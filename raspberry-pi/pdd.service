@@ -1,0 +1,14 @@
+[Unit]
+Description=Poultry Disease Detector - camera, AI inference and STM32 UART link
+After=multi-user.target
+
+[Service]
+Type=simple
+User=aina
+WorkingDirectory=/home/aina/poultry_pi
+ExecStart=/home/aina/poultry_pi/venv/bin/python /home/aina/poultry_pi/pdd_inference.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
